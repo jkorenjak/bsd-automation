@@ -28,6 +28,12 @@ services:
       NODE_ENV: development
     depends_on:
       - postgres
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
 
   test:
     build:
