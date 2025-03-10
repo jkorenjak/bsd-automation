@@ -1,4 +1,4 @@
-# bsd-automation# Crypto Transaction API with Automation
+# Transaction API with Automation
 
 A simple REST API for handling cryptocurrency transactions (deposits, withdrawals, and balance inquiries).
 Includes automated testing using Playwright and TypeScript.
