@@ -31,7 +31,12 @@ services:
     volumes:
       - ./src:/app/src
       - ./prisma:/app/prisma
-      - ./dist:/app/dist
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/healthcheck" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
     restart: always
 
   test:
@@ -42,12 +47,15 @@ services:
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/bsd_transaction"
       BASE_URL: http://api:3000
     depends_on:
-      - postgres
-      - api
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
     volumes:
       - ./prisma:/app/prisma
       - ./tests:/tests/tests
       - ./test-results:/tests/test-results
+      - ./playwright-report:/tests/playwright-report
 
 volumes:
   postgres_data:
