@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/playwright:v1.51.0-noble
+
+WORKDIR app/
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npx prisma generate
+
+CMD ["npm", "run", "test"]
