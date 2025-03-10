@@ -39,7 +39,8 @@ services:
       dockerfile: docker/test.Dockerfile
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/bsd_transaction"
-      API_URL: http://api:3000
+      API_URL:  "http://localhost:3000"
+    network_mode: "host"
     depends_on:
       - postgres
       - api
