@@ -1,8 +1,6 @@
-version: "3.8"
-
 services:
   postgres:
-    image: postgres:15
+    image: postgres:latest
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -26,14 +24,20 @@ services:
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/bsd_transaction"
       NODE_ENV: development
+      PORT: 3000
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/healthcheck" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    restart: always
 
   test:
     build:
@@ -41,7 +45,17 @@ services:
       dockerfile: docker/test.Dockerfile
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/bsd_transaction"
-      API_URL: http://api:3000
+      BASE_URL: http://api:3000
     depends_on:
-      - postgres
-      - api
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    volumes:
+      - ./prisma:/app/prisma
+      - ./tests:/tests/tests
+      - ./test-results:/tests/test-results
+      - ./playwright-report:/tests/playwright-report
+
+volumes:
+  postgres_data:

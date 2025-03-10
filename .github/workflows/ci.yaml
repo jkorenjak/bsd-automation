@@ -1,4 +1,4 @@
-name: BSD API CI
+name: BSDigital API CI
 
 on:
   push:
@@ -7,32 +7,62 @@ on:
   pull_request:
     types:
       - opened
+      - synchronize
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
 
 jobs:
   test:
+    name: Run Playwright Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Build and run tests
+      - name: Build
         run: |
-          # Build the services
           docker compose build
-          
-          # Run the test service
-          docker compose run --rm test    
+          docker compose up -d postgres api
+
+      - name: Test
+        run: |
+          docker compose run --rm test
+
+      - name: Store Playwright Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_number }}
+          path: ./playwright-report/
+          retention-days: 30
+
+      - name: Upload Pages Artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./playwright-report/
 
       - name: Cleanup
         if: always()
         run: |
-          docker-compose down -v --remove-orphans
+          docker compose down -v --remove-orphans
 
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
