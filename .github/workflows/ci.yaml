@@ -1,0 +1,33 @@
+name: BSD API CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and run tests
+        run: |
+          # Build the services
+          docker-compose build
+          
+          # Run the test service
+          docker-compose run --rm test    
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker-compose down -v --remove-orphans
+
