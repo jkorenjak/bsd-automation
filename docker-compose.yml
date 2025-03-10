@@ -43,6 +43,7 @@ services:
     depends_on:
       - postgres
       - api
+    entrypoint: ["/bin/sh", "-c", "npx prisma migrate deploy && npm run test"]
 
 volumes:
   postgres_data:
