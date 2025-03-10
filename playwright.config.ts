@@ -6,7 +6,7 @@ const config: PlaywrightTestConfig = {
     reporter: 'html',
     workers: 1,
     use: {
-        baseURL: process.env.API_URL || 'http://localhost:3000',
+        baseURL: process.env.BASE_URL || 'http://localhost:3000',
         extraHTTPHeaders: {
             'Accept': 'application/json',
         },

@@ -1,11 +1,17 @@
-FROM mcr.microsoft.com/playwright:v1.51.0-noble
+FROM mcr.microsoft.com/playwright:latest
 
-WORKDIR app/
+WORKDIR /tests
 
 COPY package*.json ./
 
 RUN npm ci
 
-COPY . .
+COPY prisma ./prisma/
 
 RUN npx prisma generate
+
+COPY tests/ ./tests/
+COPY utils/ ./utils/
+COPY playwright.config.ts ./
+
+CMD ["npx", "playwright", "test"]

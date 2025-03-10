@@ -4,15 +4,16 @@ import {balanceSchema} from "../validators/validationSchema";
 
 const prisma = new PrismaClient();
 
-export const getBalance = async (req: Request, res: Response) => {
+export const getBalance = async (req: Request, res: Response): Promise<void> => {
     try {
         const schemaValidation = balanceSchema.safeParse(req.query);
 
         if (!schemaValidation.success) {
-            return res.status(400).json({
+            res.status(400).json({
                 error: "Balance validation failed.",
                 details: schemaValidation.error.message
             });
+            return;
         }
 
         const {assetType, userId} = schemaValidation.data;

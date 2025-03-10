@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:20
 
 WORKDIR /app
 
@@ -6,11 +6,15 @@ COPY package*.json ./
 
 RUN npm ci
 
-COPY . .
+COPY prisma ./prisma/
 
 RUN npx prisma generate
 
+COPY src ./src/
+COPY tsconfig.json ./
+
+RUN npm run build
+
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
-
+CMD ["npm", "start"]

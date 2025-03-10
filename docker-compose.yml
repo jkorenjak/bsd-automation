@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15
+    image: postgres:latest
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -14,8 +14,6 @@ services:
       interval: 1s
       timeout: 5s
       retries: 10
-    networks:
-      - app-network
 
   api:
     build:
@@ -26,15 +24,15 @@ services:
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/bsd_transaction"
       NODE_ENV: development
+      PORT: 3000
     depends_on:
-      - postgres
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    networks:
-      - app-network
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./dist:/app/dist
+    restart: always
 
   test:
     build:
@@ -42,17 +40,14 @@ services:
       dockerfile: docker/test.Dockerfile
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/bsd_transaction"
-      API_URL: "http://api:3000"
+      BASE_URL: http://api:3000
     depends_on:
       - postgres
       - api
-    entrypoint: ["/bin/sh", "-c", "npx prisma migrate deploy && npm run test"]
-    networks:
-      - app-network
+    volumes:
+      - ./prisma:/app/prisma
+      - ./tests:/tests/tests
+      - ./test-results:/tests/test-results
 
 volumes:
   postgres_data:
-
-networks:
-  app-network:
-    driver: bridge

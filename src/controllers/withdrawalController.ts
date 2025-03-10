@@ -4,15 +4,16 @@ import {withdrawalSchema} from "../validators/validationSchema";
 
 const prisma = new PrismaClient();
 
-export const createWithdrawal = async (req: Request, res: Response) => {
+export const createWithdrawal = async (req: Request, res: Response): Promise<void> => {
     try {
         const schemaValidation = withdrawalSchema.safeParse(req.body);
 
         if (!schemaValidation.success) {
-            return res.status(400).json({
+            res.status(400).json({
                 error: "Withdrawal validation failed.",
                 details: schemaValidation.error.message
             });
+            return;
         }
 
         const {assetType, amount, address, userId} = schemaValidation.data;

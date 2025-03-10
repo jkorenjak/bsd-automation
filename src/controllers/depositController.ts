@@ -4,15 +4,16 @@ import {depositSchema} from "../validators/validationSchema";
 
 const prisma = new PrismaClient();
 
-export const createDeposit = async (req: Request, res: Response) => {
+export const createDeposit = async (req: Request, res: Response): Promise<void> => {
     try {
         const schemaValidation = depositSchema.safeParse(req.body);
 
         if (!schemaValidation.success) {
-            return res.status(400).json({
+            res.status(400).json({
                 error: "Deposit validation failed.",
                 details: schemaValidation.error.message
             });
+            return;
         }
 
         const {assetType, amount, address} = schemaValidation.data;
