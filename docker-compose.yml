@@ -22,7 +22,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/bsd_transaction"
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
       NODE_ENV: development
       PORT: 3000
     depends_on:
@@ -44,7 +44,7 @@ services:
       context: .
       dockerfile: docker/test.Dockerfile
     environment:
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/bsd_transaction"
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
       BASE_URL: http://api:3000
     depends_on:
       postgres:
